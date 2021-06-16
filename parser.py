@@ -68,7 +68,7 @@ def cleanup(raw_text):
     text = unquote(text)
     return text
 
-mbox_obj = mailbox.mbox('./data/AngelList.mbox')
+mbox_obj = mailbox.mbox('./raw-data/AngelList.mbox')
 
 num_entries = len(mbox_obj)
 
@@ -81,5 +81,5 @@ for idx, email_obj in enumerate(mbox_obj):
         clean_content = cleanup(raw_text=raw_content)
         dates = datefinder.find_dates(clean_content, source=True)
         article_date = next(dates)
-        with open('./processed/'+ article_date[1] + '.txt', 'w') as f:
+        with open('./parsed-data/'+ article_date[1] + '.txt', 'w') as f:
             f.write(clean_content)
