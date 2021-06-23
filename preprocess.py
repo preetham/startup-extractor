@@ -4,6 +4,10 @@
 import glob
 import re
 
+
+def findWholeWord(w):
+    return re.compile(r'\b({0})\b'.format(w), flags=re.IGNORECASE).search
+
 def preprocess(file_data):
     matches = re.split(r'<https://angel.co/today/stories/.*>', file_data, flags=re.MULTILINE)
     if matches is None:
@@ -15,7 +19,13 @@ def preprocess(file_data):
         article = re.sub(r'\n', '', raw_article)
         article = re.sub(r'\*', '', article)
         article = re.sub('Join the discussion', '', article)
-        articles.append(article)
+        article = re.sub(r'^\w+\s{1,3}', '', article)
+        article = re.sub(r'^\w+\s{3}', '', article)
+        article = re.sub(r'^\w+\s\w+\s{3}', '', article)
+        raised = findWholeWord('raised')(article)
+        series = re.search(r'Series\s[A,B,C,D,E]', article, flags=re.MULTILINE)
+        if raised and series:
+            articles.append(article.strip())
         i = i + 3
     clean_article = '\n'.join(articles)
     return clean_article
@@ -31,7 +41,7 @@ def read_file(path):
         clean_data = preprocess(file_data=file_data)
         if clean_data and len(clean_data) > 0:
             file_name = path.split('/')[-1]
-            with open('./clean-data/' + file_name, 'w') as wf:
+            with open('./raised-article-data/' + file_name, 'w') as wf:
                 wf.write(clean_data)
 
 files = list_files('./parsed-data/*.txt')
